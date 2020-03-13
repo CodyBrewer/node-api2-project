@@ -33,7 +33,25 @@ router.get("/:id", async (req, res) => {
   const { id } = req.params;
   try {
     const post = await db.findById(id);
-    res.status(201).json({ success: true, post });
+    post
+      ? res.status(201).json({ success: true, post })
+      : res
+          .status(404)
+          .json({ success: false, message: "no post found by that id" });
+  } catch (error) {
+    res.status(500).json({ success: false, error });
+  }
+});
+
+router.delete("/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const deleted = await db.remove(id);
+    deleted
+      ? res.status(204).end()
+      : res
+          .status(404)
+          .json({ success: false, message: "no post found by that id" });
   } catch (error) {
     res.status(500).json({ success: false, error });
   }
