@@ -12,4 +12,21 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.post("/", async (req, res) => {
+  const newPost = req.body;
+  if (newPost.title && newPost.contents) {
+    try {
+      const addedPost = await db.insert(newPost);
+      res.status(201).json({ success: true, addedPost });
+    } catch (error) {
+      res.status(500).json({ success: false, error });
+    }
+  } else {
+    res.status(400).json({
+      success: false,
+      message: "please provide title and contents for the post"
+    });
+  }
+});
+
 module.exports = router;
