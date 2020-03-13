@@ -57,4 +57,28 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
+router.put("/:id", async (req, res) => {
+  const { id } = req.params;
+  const { title, contents } = req.body;
+  if (title && contents) {
+    try {
+      const updated = await db.update(id, { title, contents });
+      console.log(`updated`);
+      updated
+        ? res.status(200).json({ success: true, updated })
+        : res
+            .status(404)
+            .json({ success: false, message: "no post found by that id" });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ success: false, error });
+    }
+  } else {
+    res.status(400).json({
+      success: false,
+      message: "please provide title and contents for the post"
+    });
+  }
+});
+
 module.exports = router;
