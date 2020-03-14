@@ -81,4 +81,54 @@ router.put("/:id", async (req, res) => {
   }
 });
 
+router.get("/:id/comments", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const comments = await db.findPostComments(id);
+    comments
+      ? res.status(200).json({ success: true, comments })
+      : res
+          .status(404)
+          .json({ success: false, message: "no post found by that id" });
+  } catch (error) {
+    res.status(500).json({ success: false, error });
+  }
+});
+
+router.post("/:id/comments", async (req, res) => {
+  const { id } = req.params;
+  const { text } = req.body;
+  const comment = { text, post_id: id };
+  if (comment) {
+    try {
+      const post = await db.findById(id);
+      if (post) {
+        try {
+          const addedComment = await db.insertComment(comment);
+          res.status(200).json({ success: true, comment: addedComment });
+        } catch (error) {
+          res.status(500).json({
+            success: false,
+            error,
+            message: "failed at inserting comment"
+          });
+        }
+      } else {
+        res
+          .status(400)
+          .json({ success: false, message: "can not find post by that id" });
+      }
+    } catch (error) {
+      res
+        .status(500)
+        .json({ success: false, error, message: "failed at finding id" });
+      console.log(error);
+    }
+  } else {
+    res
+      .status(400)
+      .json({ success: false, message: "please provide text for comment" });
+  }
+});
+
 module.exports = router;
